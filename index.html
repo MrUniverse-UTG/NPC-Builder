@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realms of Legacy - NPC Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@400;500;700&family=Cinzel+Decorative:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=Literata:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+#main { max-width:1100px; }
+.hub-intro { margin-bottom:2rem; }
+.card-foot { margin-top:14px; font-family:var(--font-heading); font-size:.7rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--cyan); }
+.note-block { margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--border); }
+.note-block h3 { font-family:var(--font-heading); font-size:.8rem; font-weight:700; text-transform:uppercase; letter-spacing:.15em; color:var(--text-dim); margin-bottom:.75rem; }
+.note-block p { font-family:var(--font-ui); font-size:.9rem; color:var(--text-dim); line-height:1.7; max-width:75ch; }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<header id="topbar">
+  <div>
+    <h1>Realms of Legacy <span class="subtitle">NPC Builder</span></h1>
+  </div>
+  <nav>
+    <a href="index.html" class="active">Tools</a>
+    <a href="npc.html">NPC Generator</a>
+    <a href="veilstrider.html">Veilstrider</a>
+    <a href="leviathan.html">Leviathan</a>
+  </nav>
+</header>
+
+<div id="main">
+  <div class="step-header hub-intro">
+    <h2>NPC Creation Tools</h2>
+    <p>Build NPCs, Veilstriders, and Leviathans, then export a formatted stat block as an image. Each tool saves its work as JSON so you can pick a build back up later.</p>
+  </div>
+
+  <div class="tool-grid">
+    <a class="option-card" href="npc.html">
+      <div class="card-tag">Characters</div>
+      <div class="card-title">NPC Generator</div>
+      <p class="card-body">Create or edit standard NPCs, spending Build Points to allocate their attributes and skills as you build.</p>
+      <div class="card-foot">Open →</div>
+    </a>
+    <a class="option-card" href="veilstrider.html">
+      <div class="card-tag">Ships</div>
+      <div class="card-title">Veilstrider Stat Block Generator</div>
+      <p class="card-body">Create custom NPC Veilstrider stat blocks for ship combat encounters in the Veil.</p>
+      <div class="card-foot">Open →</div>
+    </a>
+    <a class="option-card" href="leviathan.html">
+      <div class="card-tag">Creatures</div>
+      <div class="card-title">Leviathan Stat Block Generator</div>
+      <p class="card-body">Build stat blocks for massive Leviathan-class creatures encountered across the Veil.</p>
+      <div class="card-foot">Open →</div>
+    </a>
+  </div>
+
+  <div class="note-block">
+    <h3>Saving your work</h3>
+    <p>Every tool has <strong>Save JSON</strong> and <strong>Load JSON</strong> buttons. Files are saved to your own device — nothing is uploaded. Each tool's JSON format is specific to that tool, so a Veilstrider save cannot be loaded into the NPC Generator or vice versa.</p>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+</body>
+</html>

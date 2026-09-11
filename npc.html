@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realms of Legacy - NPC Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@400;500;700&family=Cinzel+Decorative:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=Literata:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+<style>
+#starfield {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+.btn-generate { background: var(--gold); color: #04060f; border: 1px solid var(--gold); }
+.btn-generate:hover { background: var(--gold-pale); box-shadow: 0 0 20px rgba(201,168,76,0.35); transform: translateY(-1px); }
+.btn-download { background: transparent; color: var(--cyan); border: 1px solid rgba(79,195,247,0.4); }
+.btn-download:hover { background: rgba(79,195,247,0.08); border-color: var(--cyan); transform: translateY(-1px); }
+#statBlockForm {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      background: rgba(13,22,48,0.75);
+      max-width: 1100px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+    }
+#statBlockForm h2 {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      color: var(--white);
+      letter-spacing: 0.02em;
+    }
+#statBlockForm label {
+      margin: 4px 0;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 110px;
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+input[type="text"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      box-sizing: border-box;
+      font-family: 'Literata', serif;
+      font-size: 1.05rem;
+      background: rgba(8,13,28,0.8);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--white);
+      padding: 0.45rem 0.7rem;
+      margin-top: 3px;
+    }
+input[type="text"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: rgba(79,195,247,0.45);
+      box-shadow: 0 0 0 2px rgba(79,195,247,0.08);
+    }
+input[type="number"] { -moz-appearance: textfield; }
+input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+select option { background: #0d1630; color: var(--white); }
+textarea { resize: vertical; }
+#statBlockForm b {
+      font-family: var(--font-heading);
+      font-size: 0.9rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold-pale);
+    }
+#statBlockForm table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 6px;
+    }
+#statBlockForm th {
+      font-family: var(--font-heading);
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+      padding: 6px 8px;
+      text-align: left;
+      background: rgba(8,13,28,0.6);
+      border: 1px solid var(--border);
+    }
+#statBlockForm td {
+      padding: 4px 8px;
+      color: var(--white);
+      font-size: 1.05rem;
+      border: 1px solid var(--border);
+    }
+#statBlockForm button {
+      font-family: var(--font-heading);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.5rem 1.1rem;
+      border-radius: 4px;
+      border: 1px solid rgba(100,160,255,0.3);
+      background: rgba(8,13,28,0.6);
+      color: var(--white);
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 4px;
+    }
+#statBlockForm button:hover { color: var(--white); border-color: rgba(79,195,247,0.5); background: rgba(79,195,247,0.08); }
+#statBlockForm button.btn-primary { background: var(--gold); color: var(--void); border: none; font-weight: 600; }
+#statBlockForm button.btn-primary:hover { background: var(--gold-pale); color: var(--void); border-color: transparent; box-shadow: 0 0 20px rgba(201,168,76,0.35); }
+.section-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+.section-column {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+.standardFields input[type="text"],
+    .standardFields textarea {
+      width: 100%;
+      min-height: 32px;
+    }
+#name, #cl { font-size: 1.2em; font-weight: bold; }
+.toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-family: var(--font-heading);
+      font-size: 0.88rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+.toggle-label input[type="checkbox"] { accent-color: var(--cyan); width: 14px; height: 14px; cursor: pointer; }
+.section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 8px 0;
+      grid-column: 1 / -1;
+    }
+.sb-twocol {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 24px;
+      align-items: start;
+    }
+@media (max-width: 900px) {
+  .sb-twocol { grid-template-columns: 1fr; }
+}
+.sb-col-span-2 { grid-column: 1 / -1; }
+.no-break,
+    .section-group {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      -webkit-column-break-inside: avoid;
+      -moz-column-break-inside: avoid;
+      column-break-inside: avoid;
+      display: block;
+      width: 100%;
+    }
+.section-title {
+      font-family: 'Literata', serif;
+      font-weight: 700;
+      font-size: 1.1em;
+      color: #222;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 6px 0 4px;
+      border-bottom: 2px solid #000;
+      padding-bottom: 2px;
+    }
+.section-rule {
+      border: none;
+      border-top: 1px solid #666;
+      margin: 8px 0 4px;
+    }
+#renderedOutput {
+      display: none;
+      border: 2px solid black;
+      padding: 10px;
+      margin-top: 12px;
+      background: #fff;
+    }
+#renderedOutput,
+    #renderedOutput * {
+      font-family: 'Literata', Georgia, serif !important;
+      color: #111 !important;
+      text-transform: none !important;
+      letter-spacing: normal !important;
+    }
+#renderedOutput { background: #fff !important; border-color: #000 !important; }
+#renderedOutput b, #renderedOutput strong { font-weight: bold !important; }
+#renderedOutput i, #renderedOutput em { font-style: italic !important; }
+#renderedOutput table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 10px !important; }
+#renderedOutput th { background: #eee !important; font-weight: bold !important; font-size: 14px !important; padding: 3px 6px !important; text-align: left !important; border-color: #000 !important; }
+#renderedOutput td { padding: 2px 6px !important; font-size: 14px !important; text-align: left !important; background: transparent !important; border-color: #000 !important; }
+#renderedOutput .section-title { font-weight: 700 !important; font-size: 1.1em !important; color: #222 !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; margin: 6px 0 4px !important; border-bottom: 2px solid #000 !important; padding-bottom: 2px !important; display: block !important; }
+.tool-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.25rem;
+      border-bottom: 1px solid var(--border);
+    }
+.tool-tab {
+      font-family: var(--font-heading);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+    }
+.tool-tab:hover { color: var(--white); }
+.tool-tab.active { color: var(--gold-pale); border-bottom-color: var(--gold); }
+.tool-panel { display: none; }
+.tool-panel.active { display: block; }
+.tool-wrap {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+@media (max-width: 960px) {
+  .tool-wrap { grid-template-columns: 1fr; }
+}
+.card {
+      background: rgba(13,22,48,0.75);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+.card:last-child { margin-bottom: 0; }
+.card-title {
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gold-pale);
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-gold);
+    }
+.field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+    }
+.field-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.field-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.field-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.field { display: flex; flex-direction: column; gap: 0.3rem; }
+.field label {
+      font-family: var(--font-heading);
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--white);
+    }
+input[readonly], input[disabled] {
+      background: rgba(4,6,15,0.6);
+      color: var(--text-dim);
+      cursor: default;
+      border-color: rgba(100,160,255,0.08);
+    }
+input.over  { border-color: var(--red) !important; box-shadow: 0 0 0 2px rgba(224,85,85,0.15) !important; }
+input.under { border-color: var(--blue-hint) !important; box-shadow: 0 0 0 2px rgba(79,130,255,0.1) !important; }
+.helper { font-size: 0.9rem; color: var(--text); margin-top: 0.5rem; line-height: 1.5; }
+.dmg-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-top: 0.75rem; }
+.dmg-card { background: rgba(8,13,28,0.6); border: 1px solid var(--border); border-radius: 5px; padding: 0.6rem 0.75rem; text-align: center; }
+.dmg-card .dmg-val { font-family: var(--font-display); font-size: 1.2rem; color: var(--gold); display: block; }
+.dmg-card .dmg-label { font-family: var(--font-heading); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); }
+.status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+.status-card { background: rgba(8,13,28,0.6); border: 1px solid var(--border); border-radius: 6px; padding: 0.85rem 1rem; text-align: center; }
+.status-card.hp { border-top: 2px solid #e05555; }
+.status-card.dp { border-top: 2px solid #4fc3f7; }
+.status-card.mp { border-top: 2px solid #b46eff; }
+.status-card .status-label { font-family: var(--font-heading); font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text); margin-bottom: 0.4rem; }
+.status-card input { background: transparent; border: none; text-align: center; font-family: var(--font-display); font-size: 1.6rem; color: var(--white); cursor: default; padding: 0; }
+.status-card.hp input { color: #e07070; }
+.status-card.dp input { color: var(--cyan); }
+.status-card.mp input { color: #b46eff; }
+.bp-entry { display: flex; gap: 0.6rem; align-items: flex-start; margin-bottom: 0.75rem; }
+.bp-entry textarea { flex: 1; height: 64px; resize: vertical; }
+.bp-entry .bp-cost { width: 72px; flex-shrink: 0; text-align: center; }
+.bp-entry .bp-remove { background: none; border: 1px solid rgba(224,85,85,0.3); color: #e07070; border-radius: 4px; padding: 0.3rem 0.5rem; cursor: pointer; font-size: 0.85rem; transition: background 0.2s, border-color 0.2s; flex-shrink: 0; align-self: center; }
+.bp-entry .bp-remove:hover { background: rgba(224,85,85,0.1); border-color: var(--red); }
+.bp-bar-wrap { margin-top: 0.75rem; }
+.bp-bar-label { display: flex; justify-content: space-between; font-family: var(--font-heading); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); margin-bottom: 0.35rem; }
+.bp-bar-label span { color: var(--white); }
+.bp-bar-track { height: 6px; background: rgba(8,13,28,0.8); border-radius: 3px; border: 1px solid var(--border); overflow: hidden; }
+.bp-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s, background 0.3s; background: var(--cyan); }
+.bp-bar-fill.over { background: var(--red); }
+.btn { display: inline-block; font-family: var(--font-heading); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.65rem 1.4rem; border-radius: 4px; border: none; cursor: pointer; transition: all 0.2s; text-decoration: none; }
+.btn-primary { background: var(--gold); color: var(--void); border: none; font-weight: 600; }
+.btn-primary:hover { background: var(--gold-pale); box-shadow: 0 0 20px rgba(201,168,76,0.35); transform: translateY(-1px); }
+.btn-secondary { background: transparent; color: var(--cyan); border: 1px solid rgba(79,195,247,0.4); }
+.btn-secondary:hover { background: rgba(79,195,247,0.08); border-color: var(--cyan); box-shadow: 0 0 15px var(--cyan-glow); transform: translateY(-1px); }
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { color: var(--white); border-color: rgba(100,160,255,0.35); }
+.btn-sm { font-size: 0.75rem; padding: 0.5rem 1rem; }
+.btn.btn-save { background: rgba(79,195,247,0.08); color: var(--cyan); border: 1px solid rgba(79,195,247,0.3); }
+.btn.btn-save:hover { background: rgba(79,195,247,0.18); }
+.btn.btn-load { background: rgba(201,168,76,0.08); color: var(--gold); border: 1px solid rgba(201,168,76,0.3); }
+.btn.btn-load:hover { background: rgba(201,168,76,0.18); }
+.btn.btn-load-into { background: rgba(180,110,255,0.08); color: #c9a0ff; border: 1px solid rgba(180,110,255,0.3); }
+.btn.btn-load-into:hover { background: rgba(180,110,255,0.18); }
+.btn-group { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.25rem; }
+#summaryBox { background: #fff; border: 2px solid #000; position: relative; padding: 4px; max-width: 100%; margin: 0 auto; font-family: 'Literata', Georgia, serif; color: #111; }
+#summaryBox::before { content: ''; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; border: 2px solid #000; pointer-events: none; box-sizing: border-box; }
+#summaryBox h2 { font-family: 'Literata', Georgia, serif; font-size: 1.4rem; font-weight: 700; color: #111; margin-bottom: 0.15rem; }
+#summaryBox h3 { font-family: 'Literata', Georgia, serif; font-size: 0.95rem; font-weight: 400; font-style: italic; color: #444; margin-bottom: 0.75rem; text-transform: none; letter-spacing: normal; }
+#summaryBox h4 { font-family: 'Literata', Georgia, serif; font-size: 0.9rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #222; margin: 0.75rem 0 0.3rem; padding-bottom: 2px; border-bottom: 2px solid #000; }
+#summaryBox p { font-family: 'Literata', Georgia, serif; font-size: 0.92rem; color: #111; line-height: 1.6; margin-bottom: 0.15rem; }
+#summaryBox > * { position: relative; }
+#summaryCanvas { display: none; }
+.summary-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100vh;
+      width: min(440px, 92vw);
+      background: var(--deep);
+      border-left: 1px solid var(--border);
+      box-shadow: -12px 0 40px rgba(0,0,0,0.5);
+      transform: translateX(100%);
+      transition: transform 0.3s ease;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+    }
+.summary-drawer.open { transform: translateX(0); }
+.summary-drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-heading);
+      font-size: 0.78rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-pale);
+      flex-shrink: 0;
+    }
+.summary-drawer-close {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 4px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: color 0.2s, border-color 0.2s;
+    }
+.summary-drawer-close:hover { color: var(--white); border-color: rgba(100,160,255,0.4); }
+.summary-drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.25rem;
+    }
+.summary-drawer-footer {
+      padding: 1rem 1.25rem;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+.nav-dropdown-toggle { cursor: pointer; }
+.nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(4,6,15,0.98);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      list-style: none;
+      padding: 0.4rem 0;
+      min-width: 180px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 9999;
+      backdrop-filter: blur(12px);
+    }
+.nav-dropdown-menu li a {
+      display: block;
+      padding: 0.5rem 1rem;
+      font-family: var(--font-heading);
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+.nav-dropdown-menu li a:hover { color: var(--cyan); background: rgba(79,195,247,0.07); }
+.nav-dropdown-menu li:not(:last-child) { border-bottom: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<header id="topbar">
+  <div>
+    <h1>Realms of Legacy <span class="subtitle">NPC Generator</span></h1>
+  </div>
+  <nav>
+    <a href="index.html">Tools</a>
+    <a href="npc.html" class="active">NPC Generator</a>
+    <a href="veilstrider.html">Veilstrider</a>
+    <a href="leviathan.html">Leviathan</a>
+    <a href="https://www.realmsoflegacy.com/bestiary.html">Bestiary</a>
+    <a href="https://www.realmsoflegacy.com" class="home-link">Main Site</a>
+  </nav>
+</header>
+
+<canvas id="starfield"></canvas>
+
+<!-- Nav -->
+
+
+<!-- Page header -->
+<div class="page-header">
+  <p class="breadcrumb"><a href="index.html">NPC Creator</a> &rsaquo; NPC Generator</p>
+  <h1>NPC Generator</h1>
+</div>
+
+<!-- Info banner -->
+<div class="info-banner">
+  <div class="banner-inner">
+    <h2 style="font-family:var(--font-heading); font-size:1rem; color:#eef2ff; margin-bottom:0.75rem; letter-spacing:0.02em;">Notes about using the NPC Generator</h2>
+    <ul>
+      <li>Use the <strong>Stat Tracker</strong> tab to plan your build and spend BP, then click <strong>Load into Generator</strong> to carry Name, Attributes, Skills, HP, DP, and MP over to the <strong>Stat Block Generator</strong> tab.</li>
+      <li><strong>View Summary</strong> opens a side panel with your tracked stats and BP features so you can reference it while working in either tab.</li>
+      <li>If you check <strong>Mythic</strong>, do not adjust HP/DP/MP manually, since they will be auto-scaled when you generate.</li>
+      <li>The <strong>Mythic</strong> checkbox will also automatically add all Mythic traits to the stat block.</li>
+      <li>Opposing modifiers for skills are calculated automatically.</li>
+      <li>Adding an <strong>Ability</strong> Standard Action will auto-add the Charging quick action.</li>
+      <li><strong>Save JSON</strong> / <strong>Load JSON</strong> saves your Tracker and Generator progress together in one file.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Content -->
+<div class="content-wrap">
+
+  <div class="tool-tabs">
+    <button class="tool-tab active" id="tabBtnTracker" onclick="switchTab('tracker')" type="button">Stat Tracker</button>
+    <button class="tool-tab" id="tabBtnGenerator" onclick="switchTab('generator')" type="button">Stat Block Generator</button>
+  </div>
+
+  <!-- ═══ STAT TRACKER PANEL (ported from npc-stat-tracker.html) ═══ -->
+  <div id="panelTracker" class="tool-panel active">
+    <div class="tool-wrap">
+
+      <!-- LEFT COLUMN -->
+      <div>
+
+        <div style="margin-bottom:1.25rem;">
+          <button type="button" class="btn btn-primary" onclick="document.getElementById('statJsonFile').click()">Load JSON</button>
+        </div>
+
+        <!-- Identity -->
+        <div class="card">
+          <p class="card-title">Identity</p>
+          <div class="field-grid field-grid-3">
+            <div class="field" style="grid-column: span 3;">
+              <label>Name</label>
+              <input type="text" id="npcName" placeholder="Creature name" />
+            </div>
+            <div class="field">
+              <label>Theme</label>
+              <select id="themeSelect" onchange="recalculateStatusFromTheme()">
+                <option value="">-- Select --</option>
+                <option value="Brute">Brute</option>
+                <option value="Skirmisher">Skirmisher</option>
+                <option value="Marksman">Marksman</option>
+                <option value="Lurker">Lurker</option>
+                <option value="Tactician">Tactician</option>
+                <option value="Spellcaster">Spellcaster</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Challenge Level (CL)</label>
+              <select id="clSelect" onchange="handleCLChange()"></select>
+            </div>
+            <div class="field">
+              <label>Status Points Buy Count</label>
+              <input type="number" id="statusIncrease" value="0" min="0" max="70" oninput="handleStatusIncreaseChange()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Attributes -->
+        <div class="card">
+          <p class="card-title">Attributes</p>
+          <div class="field-grid field-grid-4">
+            <div class="field">
+              <label>Attribute Points</label>
+              <input type="number" id="attrPoints" readonly />
+            </div>
+            <div class="field">
+              <label>+/- Points</label>
+              <input type="number" id="attrPointChange" value="0" oninput="handleAttrPointChange()" />
+            </div>
+            <div class="field">
+              <label>Build Points</label>
+              <input type="number" id="bpMax" readonly />
+            </div>
+            <div class="field">
+              <label>Build Points Spent</label>
+              <input type="number" id="bpSpent" disabled />
+            </div>
+          </div>
+          <p class="helper">BP Spent updates as you add features in the right panel. Place a negative cost to refund stats for extra BP.</p>
+
+          <div style="margin-top: 1.25rem;">
+            <p class="card-title" style="margin-bottom:0.75rem;">Attribute Allocation</p>
+            <div class="field" style="max-width:160px; margin-bottom:0.75rem;">
+              <label>Max Attribute Rank</label>
+              <input type="number" id="maxAttrRank" readonly />
+            </div>
+            <div class="field-grid field-grid-4">
+              <div class="field"><label>Strength</label><input type="number" id="attrStr" value="0" oninput="validateAttributeAllocation()" /></div>
+              <div class="field"><label>Agility</label><input type="number" id="attrAgi" value="0" oninput="validateAttributeAllocation()" /></div>
+              <div class="field"><label>Wits</label><input type="number" id="attrWit" value="0" oninput="validateAttributeAllocation()" /></div>
+              <div class="field"><label>Empathy</label><input type="number" id="attrEmp" value="0" oninput="validateAttributeAllocation()" /></div>
+            </div>
+            <p class="helper" id="attrValidMsg" style="margin-top:0.5rem;"></p>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="card">
+          <p class="card-title">Skills</p>
+          <div class="field-grid field-grid-4" style="margin-bottom:1rem;">
+            <div class="field">
+              <label>Skill Points</label>
+              <input type="number" id="skillPoints" readonly />
+            </div>
+            <div class="field">
+              <label>+/- Points</label>
+              <input type="number" id="skillPointChange" value="0" oninput="handleSkillPointChange()" />
+            </div>
+            <div class="field">
+              <label>Max Skill Rank</label>
+              <input type="number" id="maxSkillRank" readonly />
+            </div>
+          </div>
+          <p class="card-title" style="margin-bottom:0.75rem;">Skill Allocation</p>
+          <div class="field-grid">
+            <div class="field"><label>Brawl</label><input type="number" id="skillBrawl" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Might</label><input type="number" id="skillMight" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Endure</label><input type="number" id="skillEndure" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Intimidate</label><input type="number" id="skillIntimidate" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Shoot</label><input type="number" id="skillShoot" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Move</label><input type="number" id="skillMove" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Finesse</label><input type="number" id="skillFinesse" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Hide</label><input type="number" id="skillHide" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Analyze</label><input type="number" id="skillAnalyze" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Insight</label><input type="number" id="skillInsight" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Scout</label><input type="number" id="skillScout" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Survival</label><input type="number" id="skillSurvival" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Manipulate</label><input type="number" id="skillManipulate" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Medical</label><input type="number" id="skillMedical" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Perform</label><input type="number" id="skillPerform" value="0" oninput="handleSkillInputChange(this)" /></div>
+            <div class="field"><label>Tame</label><input type="number" id="skillTame" value="0" oninput="handleSkillInputChange(this)" /></div>
+          </div>
+          <p class="helper" id="skillValidMsg" style="margin-top:0.5rem;"></p>
+        </div>
+
+        <!-- Power Rating -->
+        <div class="card">
+          <p class="card-title">Power Rating</p>
+          <div class="field-grid field-grid-2" style="margin-bottom:1rem;">
+            <div class="field">
+              <label>Power Rating</label>
+              <input type="number" id="baseDamage" readonly />
+            </div>
+            <div class="field">
+              <label>Increase / Decrease</label>
+              <input type="number" id="baseDamageChange" value="0" oninput="handlePowerChangeChange()" />
+            </div>
+          </div>
+          <div class="dmg-grid">
+            <div class="dmg-card"><span class="dmg-val" id="bd25">0</span><span class="dmg-label">0.25x PR</span></div>
+            <div class="dmg-card"><span class="dmg-val" id="bd50">0</span><span class="dmg-label">0.5x PR</span></div>
+            <div class="dmg-card"><span class="dmg-val" id="bd150">0</span><span class="dmg-label">1.5x PR</span></div>
+            <div class="dmg-card"><span class="dmg-val" id="bd200">0</span><span class="dmg-label">2x PR</span></div>
+            <div class="dmg-card"><span class="dmg-val" id="bd250">0</span><span class="dmg-label">2.5x PR</span></div>
+            <div class="dmg-card"><span class="dmg-val" id="bd300">0</span><span class="dmg-label">3x PR</span></div>
+          </div>
+        </div>
+
+        <!-- Status Points -->
+        <div class="card">
+          <p class="card-title">Status Points</p>
+          <div class="status-grid">
+            <div class="status-card hp">
+              <div class="status-label">HP</div>
+              <input type="number" id="totalHP" readonly />
+            </div>
+            <div class="status-card dp">
+              <div class="status-label">DP</div>
+              <input type="number" id="totalDP" readonly />
+            </div>
+            <div class="status-card mp">
+              <div class="status-label">MP</div>
+              <input type="number" id="totalMP" readonly />
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="btn-group">
+          <button class="btn btn-primary" onclick="viewSummary()">View Summary</button>
+          <button class="btn btn-load-into" onclick="loadTrackerIntoGenerator()">Load into Generator &rsaquo;</button>
+          <button class="btn btn-primary" onclick="saveStatJSON()">Save JSON</button>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN: BP Spent -->
+      <div>
+        <div class="card" style="position:sticky; top:5rem;">
+          <p class="card-title">BP Spent On</p>
+
+          <!-- BP Progress Bar -->
+          <div class="bp-bar-wrap">
+            <div class="bp-bar-label">
+              Build Points <span id="bpBarLabel">0 / 0</span>
+            </div>
+            <div class="bp-bar-track">
+              <div class="bp-bar-fill" id="bpBarFill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div id="talentList" style="margin-top:1rem;"></div>
+          <button class="btn btn-ghost btn-sm" onclick="addTalent()" style="margin-top:0.5rem;">+ Add BP Feature</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- ═══ END STAT TRACKER PANEL ═══ -->
+
+  <!-- ═══ STAT BLOCK GENERATOR PANEL ═══ -->
+  <div id="panelGenerator" class="tool-panel">
+
+  <!-- ═══ ORIGINAL FORM — completely unchanged ═══ -->
+  <div id="statBlockForm">
+    <h2 style="grid-column: 1 / -1;">Creature Stat Block Generator</h2>
+
+    <div style="grid-column: 1 / -1;">
+      <button type="button" class="btn-site btn-primary" onclick="saveStatJSON()">Save JSON</button>
+      <button type="button" class="btn-site btn-primary" onclick="document.getElementById('statJsonFile').click()">Load JSON</button>
+    </div>
+
+    <div class="section-row" style="grid-column: 1 / -1;">
+      <label>Name: <input type="text" id="name"></label>
+      <label>CL: <input type="number" id="cl"></label>
+      <label>Size & Type: <input type="text" id="typeSize"></label>
+      <label>Theme: <input type="text" id="theme"></label>
+      <div class="toggle-label" style="margin-top:28px;">
+        <input type="checkbox" id="mythicToggle" style="margin-right:6px; margin-top:2px;">
+        <span>Mythic?</span>
+      </div>
+    </div>
+
+    <div class="section-row" style="grid-column: 1 / -1;">
+      <label>HP: <input type="number" id="hp"></label>
+      <label>DP: <input type="number" id="dp"></label>
+      <label>MP: <input type="number" id="mp"></label>
+      <label>Sorce: <input type="text" id="sorce"></label>
+    </div>
+
+    <div style="grid-column: 1 / -1;">
+      <b>Attributes</b>
+      <div class="section-row">
+        <label>Strength: <input type="number" id="STR" value="0" onchange="updateAllModifiers()"></label>
+        <label>Agility: <input type="number" id="AGI" value="0" onchange="updateAllModifiers()"></label>
+      </div>
+      <div class="section-row">
+        <label>Wits: <input type="number" id="WIT" value="0" onchange="updateAllModifiers()"></label>
+        <label>Empathy: <input type="number" id="EMP" value="0" onchange="updateAllModifiers()"></label>
+      </div>
+    </div>
+
+    <div style="grid-column: 1 / -1;">
+      <table border="1" cellpadding="4">
+        <tr><th>Skill</th><th>Base</th><th>Attribute</th><th>Modifier</th></tr>
+        <tbody id="skillsTable"></tbody>
+      </table>
+    </div>
+
+    <hr class="section-divider">
+    <div class="section-column" style="grid-column: 1 / -1;">
+      <label>HP Resistance: <input type="text" id="hpRes"></label>
+      <label>HP Vulnerability: <input type="text" id="hpVul"></label>
+      <label>HP Immunity: <input type="text" id="hpImm"></label>
+      <label>MP Resistance: <input type="text" id="mpRes"></label>
+      <label>MP Vulnerability: <input type="text" id="mpVul"></label>
+      <label>MP Immunity: <input type="text" id="mpImm"></label>
+      <label>DP Resistance: <input type="text" id="dpRes"></label>
+      <label>DP Vulnerability: <input type="text" id="dpVul"></label>
+      <label>DP Immunity: <input type="text" id="dpImm"></label>
+      <label>Condition Immunity: <input type="text" id="condImm"></label>
+      <label>Speed: <input type="text" id="speed" value="30"></label>
+      <label>Language(s): <input type="text" id="langs" value="None"></label>
+      <label>Senses: <input type="text" id="senses" value="Normal"></label>
+    </div>
+
+    <hr class="section-divider">
+    <div class="toggle-label" style="grid-column: 1 / -1;">
+      <input type="checkbox" id="passiveToggle" onchange="toggleSection('passives')">
+      <label for="passiveToggle">Traits?</label>
+    </div>
+    <div id="passives" style="display:none; grid-column: 1 / -1;">
+      <button onclick="addField('passives')">Add Trait</button>
+    </div>
+
+    <div class="toggle-label" style="grid-column: 1 / -1;">
+      <input type="checkbox" id="spellToggle" onchange="toggleSpellcasting()">
+      <label for="spellToggle">Spells Prepared?</label>
+    </div>
+    <div id="spellSection" style="display:none; grid-column: 1 / -1;">
+      <div id="spellChecksList"></div>
+      <button onclick="addSpellCheck()">Add Spell Check</button>
+      <br><br>
+      <button onclick="addSpell()">Add Spell</button>
+      <div id="spellsList"></div>
+    </div>
+
+    <hr class="section-divider">
+    <div id="standard" style="grid-column: 1 / -1;">
+      <b>Standard Actions:</b>
+      <button onclick="addStandardAction()">Add Standard Action</button>
+    </div>
+
+    <hr class="section-divider">
+    <div class="toggle-label" style="grid-column: 1 / -1;">
+      <input type="checkbox" id="quickToggle" onchange="toggleSection('quick')">
+      <label for="quickToggle">Quick Actions?</label>
+    </div>
+    <div id="quick" style="display:none; grid-column: 1 / -1;">
+      <b>Quick Actions:</b>
+      <button onclick="addField('quick')">Add Quick Action</button>
+      <div id="chargingAction" style="display:none;">
+        <b>Charging:</b> This creature begins charging an ability. After one full round, that ability becomes CHARGED. Once used, it is no longer CHARGED.
+      </div>
+    </div>
+
+    <hr class="section-divider">
+    <div class="toggle-label" style="grid-column: 1 / -1;">
+      <input type="checkbox" id="reactionToggle" onchange="toggleSection('reaction')">
+      <label for="reactionToggle">Reactions?</label>
+    </div>
+    <div id="reaction" style="display:none; grid-column: 1 / -1;">
+      <b>Reactions:</b>
+      <button onclick="addField('reaction')">Add Reaction</button>
+    </div>
+
+    <div style="grid-column: 1 / -1;">
+      <button onclick="renderStatBlock()">Generate Stat Block</button>
+      <button class="btn-site btn-primary" onclick="downloadImage()">Download Stat Block</button>
+      <button type="button" class="btn-site btn-primary" onclick="saveStatJSON()">Save JSON</button>
+    </div>
+  </div>
+  <!-- ═══ END ORIGINAL FORM ═══ -->
+
+  <!-- Rendered output lives OUTSIDE the form so form CSS cannot affect it -->
+  <div id="renderedOutput" style="display:none; border:2px solid black; padding:10px; margin-top:12px; background:#fff; max-width:1100px; margin-left:auto; margin-right:auto; font-family:'Literata',serif; font-size:16px; color:#111;"></div>
+
+  </div>
+  <!-- ═══ END STAT BLOCK GENERATOR PANEL ═══ -->
+
+</div>
+
+<!-- Shared save/load JSON file input, kept outside both tab panels so it works from either tab -->
+<input type="file" id="statJsonFile" accept="application/json" style="display:none" onchange="loadStatJSON(this.files[0])">
+
+<!-- Tracker Summary, side drawer, viewable alongside either tab -->
+<aside id="summaryDrawer" class="summary-drawer" aria-hidden="true">
+  <div class="summary-drawer-header">
+    <span>NPC Summary</span>
+    <button class="summary-drawer-close" onclick="closeSummaryDrawer()" aria-label="Close summary">✕</button>
+  </div>
+  <div class="summary-drawer-body" id="summaryPreview"></div>
+  <div class="summary-drawer-footer">
+    <button class="btn btn-secondary btn-sm" onclick="downloadSummaryImage()">Download Summary</button>
+  </div>
+</aside>
+<canvas id="summaryCanvas"></canvas>
+
+<!-- ═══ ORIGINAL JS — 100% verbatim, zero changes ═══ -->
+
+
+
+
+<!-- ═══ STAT TRACKER JS (ported from npc-stat-tracker.html) ═══ -->
+
+
+<!-- Starfield -->
+
+<script src="shared.js"></script>
+<script src="npc.js"></script>
+</body>
+</html>

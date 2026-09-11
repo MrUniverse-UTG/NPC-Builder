@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realms of Legacy - Leviathan Stat Block Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alegreya+SC:wght@400;500;700&family=Cinzel+Decorative:wght@400;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&family=Literata:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="stylesheet" href="styles.css">
+<style>
+#form {
+      border: 1px solid var(--border); border-radius: 8px; padding: 16px;
+      background: rgba(13,22,48,0.75);
+      display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    }
+.form-group { border: 1px solid var(--border); border-radius: 6px; padding: 12px; background: rgba(8,13,28,0.4); }
+#form label {
+      display: flex; flex-direction: column; gap: 4px;
+      font-family: var(--font-heading); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--white);
+    }
+#form input[type="text"], #form input[type="number"], #form textarea, #form select {
+      font-family: var(--font-body); font-size: 1rem;
+      background: rgba(8,13,28,0.8); border: 1px solid var(--border); border-radius: 4px; color: var(--white); padding: 0.45rem 0.7rem;
+    }
+#form input:focus, #form textarea:focus, #form select:focus { outline: none; border-color: rgba(79,195,247,0.45); box-shadow: 0 0 0 2px rgba(79,195,247,0.08); }
+#form input[readonly] { background: rgba(4,6,15,0.6); color: var(--text-dim); cursor: default; border-color: rgba(100,160,255,0.08); }
+#form input[type="number"] { -moz-appearance: textfield; }
+#form input[type="number"]::-webkit-outer-spin-button, #form input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+#form select option { background: #0d1630; color: var(--white); }
+#form textarea { resize: vertical; min-height: 60px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+#form button {
+      font-family: var(--font-heading); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.4rem 0.9rem; border-radius: 4px; border: 1px solid rgba(100,160,255,0.3);
+      background: rgba(8,13,28,0.6); color: var(--white); cursor: pointer; transition: all 0.2s;
+    }
+#form button:hover { border-color: rgba(79,195,247,0.5); background: rgba(79,195,247,0.08); }
+.form-section-label {
+      font-family: var(--font-heading); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--gold-pale); margin-bottom: 8px;
+    }
+#out { margin-top: 1.5rem; }
+.statcard {
+      width: 100%; max-width: 8.5in; margin: 0 auto; box-sizing: border-box;
+      background: #fff; border: 2px solid #000; position: relative; padding: 4px;
+      font-family: 'Literata', serif; color: #111;
+    }
+.statcard::before {
+      content: ""; position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px;
+      border: 2px solid #000; box-sizing: border-box; pointer-events: none;
+    }
+.statpad { padding: 10px; }
+.hdr { border-bottom: 2px solid #000; padding-bottom: 6px; }
+.hdr-top { display: flex; justify-content: space-between; align-items: flex-end; font-weight: 700; }
+.hdr .name { font-size: 20px; }
+.hdr .right { text-align: right; }
+.props-row {
+      display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 6px 8px; margin-top: 8px; font-size: 13px;
+    }
+@media (max-width: 700px) {
+  .props-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.prop {
+      width: 100%; box-sizing: border-box; border: 1px solid #ddd; padding: 3px 6px;
+      display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0;
+    }
+.prop b { white-space: nowrap; margin: 0; }
+.prop span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.section-title {
+      font-weight: 700; text-transform: uppercase; border-bottom: 2px solid #000;
+      margin: 6px 0 4px; padding-bottom: 2px; letter-spacing: .4px;
+    }
+.twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; align-items: start; }
+@media (max-width: 900px) {
+  .twocol { grid-template-columns: 1fr; }
+}
+.mcols { column-count: 1; }
+.col-span-2 { grid-column: 1 / -1; }
+.col-item { break-inside: avoid; -webkit-column-break-inside: avoid; page-break-inside: avoid; display: block; margin: 2px 0 6px 0; }
+.trait-line { margin: 2px 0; }
+.trait-line b { margin-right: 6px; }
+.trait-bullets { margin: 2px 0 4px 16px; padding-left: 16px; }
+.trait-bullets li { margin: 2px 0; }
+.action-subtitle { font-weight: 700; margin: 0 0 2px; }
+.action-desc { margin: 0 0 3px 0; color: #222; }
+.bullets { margin: 0; padding-left: 16px; }
+.bullets li { margin: 2px 0; }
+.statcard, .statcard * {
+      font-family: 'Literata', Georgia, serif !important;
+      color: #111 !important;
+      text-transform: none !important;
+      letter-spacing: normal !important;
+    }
+.statcard { background: #fff !important; }
+.statcard .section-title { text-transform: uppercase !important; letter-spacing: 0.4px !important; font-weight: 700 !important; border-bottom: 2px solid #000 !important; }
+.statcard b, .statcard strong { font-weight: bold !important; }
+.statcard .hdr-top { font-weight: 700 !important; }
+.statcard .hdr-top .name { font-size: 20px !important; }
+.statcard .action-subtitle { font-weight: 700 !important; }
+.nav-dropdown-toggle { cursor: pointer; }
+.nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(4,6,15,0.98);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      list-style: none;
+      padding: 0.4rem 0;
+      min-width: 180px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 9999;
+      backdrop-filter: blur(12px);
+    }
+.nav-dropdown-menu li a {
+      display: block;
+      padding: 0.5rem 1rem;
+      font-family: var(--font-heading);
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+.nav-dropdown-menu li a:hover { color: var(--cyan); background: rgba(79,195,247,0.07); }
+.nav-dropdown-menu li:not(:last-child) { border-bottom: 1px solid var(--border); }
+</style>
+</head>
+<body>
+<canvas id="starfield"></canvas>
+<header id="topbar">
+  <div>
+    <h1>Realms of Legacy <span class="subtitle">Leviathan Generator</span></h1>
+  </div>
+  <nav>
+    <a href="index.html">Tools</a>
+    <a href="npc.html">NPC Generator</a>
+    <a href="veilstrider.html">Veilstrider</a>
+    <a href="leviathan.html" class="active">Leviathan</a>
+    <a href="https://www.realmsoflegacy.com/bestiary.html">Bestiary</a>
+    <a href="https://www.realmsoflegacy.com" class="home-link">Main Site</a>
+  </nav>
+</header>
+
+<div class="page-header">
+  <p class="breadcrumb"><a href="index.html">NPC Creator</a> &rsaquo; Leviathan Stat Block Generator</p>
+  <h1>Leviathan Stat Block Generator</h1>
+</div>
+
+<div class="info-banner">
+  <div class="banner-inner">
+    <ul>
+      <li>Select a <strong>Size</strong> to auto-fill HP, Sorce, Attack Damage, Skill Dice, and Opposing Modifier.</li>
+      <li><strong>Leviathan Might</strong> and <strong>Mythic Creature</strong> traits are added automatically to every stat block.</li>
+      <li>Use <strong>Save JSON</strong> to save your work and <strong>Load JSON</strong> to resume editing later.</li>
+      <li>The JSON saved here is separate from other generator JSON files and is not compatible with them.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="content-wrap">
+
+  <div class="btn-row">
+    <input id="loader" type="file" accept="application/json" style="display:none" onchange="loadJson(this.files[0]);this.value='';">
+  </div>
+
+  <!-- ═══ ORIGINAL FORM — site-skinned ═══ -->
+  <div id="form">
+
+    <!-- Core Stats -->
+    <div class="form-group">
+      <p class="form-section-label">Core Stats</p>
+      <div class="row" style="align-items:flex-end; margin-bottom:8px;">
+        <label style="flex:1">Name<input id="lv_name" type="text"></label>
+      </div>
+      <div class="row" style="margin-bottom:8px;">
+        <label style="flex:0 0 240px">Size
+          <select id="lv_size" onchange="updateFromSize()" oninput="updateFromSize()">
+            <option value="" selected disabled> </option>
+            <option>Small</option>
+            <option>Medium</option>
+            <option>Large</option>
+            <option>Huge</option>
+            <option>Gargantuan</option>
+          </select>
+        </label>
+      </div>
+      <div class="row">
+        <label>HP<input id="lv_hp" type="number" readonly placeholder="Select a Size"></label>
+        <label>Sorce<input id="lv_mpSorce" type="number" readonly placeholder="Select a Size"></label>
+        <label>Attack Damage<input id="lv_power" type="number" readonly placeholder="Select a Size"></label>
+        <label>Skill Dice<input id="lv_skillDice" type="text" readonly placeholder="Select a Size"></label>
+        <label>Opposing Modifier<input id="lv_oppMod" type="text" readonly placeholder="Select a Size"></label>
+      </div>
+    </div>
+
+    <!-- Traits -->
+    <div class="form-group">
+      <p class="form-section-label">Traits</p>
+      <button type="button" onclick="addTraitLine('traitsList')">+ Add Trait</button>
+      <div id="traitsList" style="margin-top:8px;"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-group">
+      <p class="form-section-label">Action Sections</p>
+      <button type="button" onclick="addActionSection()">+ Add Action Section</button>
+      <div id="actionSections" style="margin-top:8px;"></div>
+    </div>
+
+  </div>
+
+  <!-- Generate / Download outside form -->
+  <div class="btn-row" style="margin-top:1.25rem;">
+    <button class="btn-site btn-primary-site" onclick="render()">Generate Stat Block</button>
+    <button class="btn-site btn-secondary-site" onclick="downloadJPEG()">Download Stat Block</button>
+    <button class="btn-site btn-save" onclick="saveJson()">Save JSON</button>
+    <button class="btn-site btn-load" onclick="document.getElementById('loader').click()">Load JSON</button>
+    <button class="btn-site btn-ghost-site" onclick="clearOutput()">Clear Output</button>
+  </div>
+
+  <div id="out"></div>
+
+</div>
+
+<!-- ═══ ORIGINAL JS — 100% verbatim ═══ -->
+
+<script src="shared.js"></script>
+<script src="leviathan.js"></script>
+</body>
+</html>
